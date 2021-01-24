@@ -6,6 +6,17 @@ import com.google.gson.Gson;
 import com.popdeluxe.maxhogs.hogs.Hog;
 import com.popdeluxe.maxhogs.hogs.Hogs;
 import com.popdeluxe.maxhogs.hogs.RiverRace;
+import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -41,11 +53,13 @@ public class TotalHogsv2 {
 
     @CrossOrigin
     @GetMapping
-    public ResponseEntity get(){
+    public ResponseEntity get() throws IOException {
 
 
         getCurrentHogs();
 
+
+/*
         getRiverRaceLogs();
 
 
@@ -58,69 +72,55 @@ public class TotalHogsv2 {
         Gson gson = new Gson();
         String response = gson.toJson(h);
 
-        return new ResponseEntity(h, HttpStatus.OK);
+
+ */
+
+        String miracle = "miracle has just happened";
+
+        return new ResponseEntity(miracle, HttpStatus.OK);
 
     }
 
 
-    private void getCurrentHogs(){
+    private void getCurrentHogs() throws IOException {
 
+        String fixieUrl = System.getenv("http://fixie:8WWkMPxq1vaNF7f@velodrome.usefixie.com:80");
 
-        final String baseUrl = "https://api.clashroyale.com/v1/clans/%23Y8JUGJPU/members";
-        URI uri = null;
+        String[] fixieValues = fixieUrl.split("[/(:\\/@)/]+");
+        String fixieUser = fixieValues[1];
+        String fixiePassword = fixieValues[2];
+        String fixieHost = fixieValues[3];
+        int fixiePort = Integer.parseInt(fixieValues[4]);
+
+        CredentialsProvider credsProvider = new BasicCredentialsProvider();
+        credsProvider.setCredentials(
+                new AuthScope(fixieHost, fixiePort),
+                new UsernamePasswordCredentials(fixieUser, fixiePassword));
+        CloseableHttpClient httpclient = HttpClients.custom()
+                .setDefaultCredentialsProvider(credsProvider).build();
         try {
-            uri = new URI(baseUrl);
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
+            HttpHost proxy = new HttpHost(fixieHost, fixiePort);
+            RequestConfig config = RequestConfig.custom()
+                    .setProxy(proxy)
+                    .build();
+            //org.apache.http.HttpHeaders headers = new org.apache.http.HttpHeaders();
+
+            HttpHost target = new HttpHost("api.clashroyale.com", 80, "https");
+
+            HttpGet httpget = new HttpGet("/v1/clans/%23Y8JUGJPU/members");
+            httpget.setConfig(config);
+            httpget.setHeader(org.apache.http.HttpHeaders.CONTENT_TYPE, "application/json");
+            httpget.setHeader(org.apache.http.HttpHeaders.AUTHORIZATION, "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9.eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6ImM0YjlhYTU5LTQ1M2EtNDU2Ny04N2M4LWQzYzcxMDhmODc2YiIsImlhdCI6MTYxMTQzOTc1Miwic3ViIjoiZGV2ZWxvcGVyLzc0ODY0MGQxLTE0ZDktZGE4MS0wMjBjLWEwMGU2MGI2YzdjZSIsInNjb3BlcyI6WyJyb3lhbGUiXSwibGltaXRzIjpbeyJ0aWVyIjoiZGV2ZWxvcGVyL3NpbHZlciIsInR5cGUiOiJ0aHJvdHRsaW5nIn0seyJjaWRycyI6WyI1NC4xNzMuMjI5LjIwMCJdLCJ0eXBlIjoiY2xpZW50In1dfQ.p0Oe_F9Bo9oC4J7Ote0iIva2jX6ukSHBbdTU6WlPrOLttdHD9rqawOA_yWJAPpGA8ZI0horPUXiZyxJ63PWW7Q");
+
+            CloseableHttpResponse response = httpclient.execute(target, httpget);
+            try {
+                System.out.println(EntityUtils.toString(response.getEntity()));
+            } finally {
+                response.close();
+            }
+        } finally {
+            httpclient.close();
         }
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_TYPE, "application/json");
-        headers.add(HttpHeaders.AUTHORIZATION, "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9.eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6ImM0YjlhYTU5LTQ1M2EtNDU2Ny04N2M4LWQzYzcxMDhmODc2YiIsImlhdCI6MTYxMTQzOTc1Miwic3ViIjoiZGV2ZWxvcGVyLzc0ODY0MGQxLTE0ZDktZGE4MS0wMjBjLWEwMGU2MGI2YzdjZSIsInNjb3BlcyI6WyJyb3lhbGUiXSwibGltaXRzIjpbeyJ0aWVyIjoiZGV2ZWxvcGVyL3NpbHZlciIsInR5cGUiOiJ0aHJvdHRsaW5nIn0seyJjaWRycyI6WyI1NC4xNzMuMjI5LjIwMCJdLCJ0eXBlIjoiY2xpZW50In1dfQ.p0Oe_F9Bo9oC4J7Ote0iIva2jX6ukSHBbdTU6WlPrOLttdHD9rqawOA_yWJAPpGA8ZI0horPUXiZyxJ63PWW7Q");
-
-
-        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("http://fixie:8WWkMPxq1vaNF7f@velodrome.usefixie.com", 80));
-        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        requestFactory.setProxy(proxy);
-
-        RestTemplate restTemplate = new RestTemplate(requestFactory);
-
-
-        HttpEntity<String> entity = new HttpEntity<String>(headers);
-
-        JsonNode result = restTemplate.exchange(uri, HttpMethod.GET, entity, JsonNode.class).getBody();
-
-        Gson gson = new Gson();
-        Hogs hawgs = gson.fromJson(result.toString(), Hogs.class);
-
-        List<Hog> compositeHogList = new ArrayList<Hog>();
-
-        hawgs.items.forEach(hawg -> {
-
-            Hog h = new Hog();
-            h.setName(hawg.name);
-            h.setTag(hawg.tag);
-            h.setDonations(hawg.donations);
-            h.setDonationsReceived(hawg.donationsReceived);
-            h.setExpLevel(hawg.expLevel);
-            h.setRole(hawg.role);
-            h.setTrophies(hawg.trophies);
-
-            if(hawg.donations >= 200) { h.setDonationScore(4); }
-            else if (hawg.donations <200 && hawg.donations >= 100)  {h.setDonationScore(3);}
-            else if (hawg.donations <100 && hawg.donations >= 50)  {h.setDonationScore(2);}
-            else if (hawg.donations < 50 && hawg.donations > 0)  {h.setDonationScore(1);}
-            else {h.setDonationScore(0);}
-
-
-            compositeHogList.add(h);
-
-        });
-
-
-
-
-        allhawgs = compositeHogList.stream().collect(Collectors.toMap(Hog::getTag, hog -> hog));
 
 
     }
