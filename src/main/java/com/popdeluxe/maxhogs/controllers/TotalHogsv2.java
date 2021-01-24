@@ -1,34 +1,33 @@
 package com.popdeluxe.maxhogs.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.popdeluxe.maxhogs.hogs.Hog;
 import com.popdeluxe.maxhogs.hogs.Hogs;
-
 import com.popdeluxe.maxhogs.hogs.RiverRace;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.*;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
 import java.math.BigDecimal;
-import java.net.*;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 @RestController
-@RequestMapping("/api/v1/maxhogs/merged")
-public class TotalHogs {
+@RequestMapping("/api/v2/maxhogs/merged")
+public class TotalHogsv2 {
 
     //@Autowired
     //@Qualifier("getMaxHogMembers")
@@ -77,6 +76,8 @@ public class TotalHogs {
 
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_TYPE, "application/json");
+        headers.add(HttpHeaders.AUTHORIZATION, "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9.eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6ImM0YjlhYTU5LTQ1M2EtNDU2Ny04N2M4LWQzYzcxMDhmODc2YiIsImlhdCI6MTYxMTQzOTc1Miwic3ViIjoiZGV2ZWxvcGVyLzc0ODY0MGQxLTE0ZDktZGE4MS0wMjBjLWEwMGU2MGI2YzdjZSIsInNjb3BlcyI6WyJyb3lhbGUiXSwibGltaXRzIjpbeyJ0aWVyIjoiZGV2ZWxvcGVyL3NpbHZlciIsInR5cGUiOiJ0aHJvdHRsaW5nIn0seyJjaWRycyI6WyI1NC4xNzMuMjI5LjIwMCJdLCJ0eXBlIjoiY2xpZW50In1dfQ.p0Oe_F9Bo9oC4J7Ote0iIva2jX6ukSHBbdTU6WlPrOLttdHD9rqawOA_yWJAPpGA8ZI0horPUXiZyxJ63PWW7Q");
+
 
         Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("http://fixie:8WWkMPxq1vaNF7f@velodrome.usefixie.com", 80));
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
@@ -84,45 +85,10 @@ public class TotalHogs {
 
         RestTemplate restTemplate = new RestTemplate(requestFactory);
 
-        //ResponseEntity<String> responseEntity = restTemplate.getForEntity("http://httpbin.org/get", String.class);
-
-        //ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.GET, responseEntity, String.class);
 
         HttpEntity<String> entity = new HttpEntity<String>(headers);
 
         JsonNode result = restTemplate.exchange(uri, HttpMethod.GET, entity, JsonNode.class).getBody();
-
-
-        //assertThat(responseEntity.getStatusCode(), is(equalTo(HttpStatus.OK)));
-
-        //this be good
-        /*
-        URI uri = null;
-        try {
-            uri = new URI(baseUrl);
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-
-
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_TYPE, "application/json");
-        //local
-        //headers.add(HttpHeaders.AUTHORIZATION, "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9.eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6ImM0YjlhYTU5LTQ1M2EtNDU2Ny04N2M4LWQzYzcxMDhmODc2YiIsImlhdCI6MTYxMTQzOTc1Miwic3ViIjoiZGV2ZWxvcGVyLzc0ODY0MGQxLTE0ZDktZGE4MS0wMjBjLWEwMGU2MGI2YzdjZSIsInNjb3BlcyI6WyJyb3lhbGUiXSwibGltaXRzIjpbeyJ0aWVyIjoiZGV2ZWxvcGVyL3NpbHZlciIsInR5cGUiOiJ0aHJvdHRsaW5nIn0seyJjaWRycyI6WyI1NC4xNzMuMjI5LjIwMCJdLCJ0eXBlIjoiY2xpZW50In1dfQ.p0Oe_F9Bo9oC4J7Ote0iIva2jX6ukSHBbdTU6WlPrOLttdHD9rqawOA_yWJAPpGA8ZI0horPUXiZyxJ63PWW7Q");
-
-        //fixie
-        headers.add(HttpHeaders.AUTHORIZATION, "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9.eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6ImM0YjlhYTU5LTQ1M2EtNDU2Ny04N2M4LWQzYzcxMDhmODc2YiIsImlhdCI6MTYxMTQzOTc1Miwic3ViIjoiZGV2ZWxvcGVyLzc0ODY0MGQxLTE0ZDktZGE4MS0wMjBjLWEwMGU2MGI2YzdjZSIsInNjb3BlcyI6WyJyb3lhbGUiXSwibGltaXRzIjpbeyJ0aWVyIjoiZGV2ZWxvcGVyL3NpbHZlciIsInR5cGUiOiJ0aHJvdHRsaW5nIn0seyJjaWRycyI6WyI1NC4xNzMuMjI5LjIwMCJdLCJ0eXBlIjoiY2xpZW50In1dfQ.p0Oe_F9Bo9oC4J7Ote0iIva2jX6ukSHBbdTU6WlPrOLttdHD9rqawOA_yWJAPpGA8ZI0horPUXiZyxJ63PWW7Q");
-
-        HttpEntity<String> entity = new HttpEntity<String>(headers);
-
-        ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
-
-
-         */
-
-        //JsonNode result = restTemplate.exchange(uri, HttpMethod.GET, entity, JsonNode.class).getBody();
-
 
         Gson gson = new Gson();
         Hogs hawgs = gson.fromJson(result.toString(), Hogs.class);
@@ -165,9 +131,6 @@ public class TotalHogs {
 
 
 
-        // this entire block works
-        RestTemplate restTemplate = new RestTemplate();
-
         final String baseUrl = "https://api.clashroyale.com/v1/clans/%23Y8JUGJPU/riverracelog";
         URI uri = null;
         try {
@@ -178,16 +141,17 @@ public class TotalHogs {
 
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_TYPE, "application/json");
-        //local
-        //headers.add(HttpHeaders.AUTHORIZATION, "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9.eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6ImM0YjlhYTU5LTQ1M2EtNDU2Ny04N2M4LWQzYzcxMDhmODc2YiIsImlhdCI6MTYxMTQzOTc1Miwic3ViIjoiZGV2ZWxvcGVyLzc0ODY0MGQxLTE0ZDktZGE4MS0wMjBjLWEwMGU2MGI2YzdjZSIsInNjb3BlcyI6WyJyb3lhbGUiXSwibGltaXRzIjpbeyJ0aWVyIjoiZGV2ZWxvcGVyL3NpbHZlciIsInR5cGUiOiJ0aHJvdHRsaW5nIn0seyJjaWRycyI6WyI1NC4xNzMuMjI5LjIwMCJdLCJ0eXBlIjoiY2xpZW50In1dfQ.p0Oe_F9Bo9oC4J7Ote0iIva2jX6ukSHBbdTU6WlPrOLttdHD9rqawOA_yWJAPpGA8ZI0horPUXiZyxJ63PWW7Q");
-
-        //fixie
         headers.add(HttpHeaders.AUTHORIZATION, "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9.eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6ImM0YjlhYTU5LTQ1M2EtNDU2Ny04N2M4LWQzYzcxMDhmODc2YiIsImlhdCI6MTYxMTQzOTc1Miwic3ViIjoiZGV2ZWxvcGVyLzc0ODY0MGQxLTE0ZDktZGE4MS0wMjBjLWEwMGU2MGI2YzdjZSIsInNjb3BlcyI6WyJyb3lhbGUiXSwibGltaXRzIjpbeyJ0aWVyIjoiZGV2ZWxvcGVyL3NpbHZlciIsInR5cGUiOiJ0aHJvdHRsaW5nIn0seyJjaWRycyI6WyI1NC4xNzMuMjI5LjIwMCJdLCJ0eXBlIjoiY2xpZW50In1dfQ.p0Oe_F9Bo9oC4J7Ote0iIva2jX6ukSHBbdTU6WlPrOLttdHD9rqawOA_yWJAPpGA8ZI0horPUXiZyxJ63PWW7Q");
 
+
+        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("http://fixie:8WWkMPxq1vaNF7f@velodrome.usefixie.com", 80));
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+        requestFactory.setProxy(proxy);
+
+        RestTemplate restTemplate = new RestTemplate(requestFactory);
+
+
         HttpEntity<String> entity = new HttpEntity<String>(headers);
-
-        ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
-
 
         JsonNode result = restTemplate.exchange(uri, HttpMethod.GET, entity, JsonNode.class).getBody();
 
