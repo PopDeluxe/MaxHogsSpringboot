@@ -84,6 +84,8 @@ public class TotalHogsv2 {
 
     private void getCurrentHogs() throws IOException {
 
+        System.out.println("in current hogs method");
+
         String fixieUrl = System.getenv("http://fixie:8WWkMPxq1vaNF7f@velodrome.usefixie.com:80");
 
         String[] fixieValues = fixieUrl.split("[/(:\\/@)/]+");
@@ -91,6 +93,8 @@ public class TotalHogsv2 {
         String fixiePassword = fixieValues[2];
         String fixieHost = fixieValues[3];
         int fixiePort = Integer.parseInt(fixieValues[4]);
+
+        System.out.println("parsed fixie url");
 
         CredentialsProvider credsProvider = new BasicCredentialsProvider();
         credsProvider.setCredentials(
