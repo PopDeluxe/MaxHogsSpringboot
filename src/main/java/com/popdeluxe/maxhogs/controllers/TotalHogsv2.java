@@ -86,7 +86,7 @@ public class TotalHogsv2 {
 
         System.out.println("in current hogs method");
 
-        String fixieUrl = System.getenv("http://fixie:8WWkMPxq1vaNF7f@velodrome.usefixie.com:80");
+        String fixieUrl = "http://fixie:8WWkMPxq1vaNF7f@velodrome.usefixie.com:80";
 
         String[] fixieValues = fixieUrl.split("[/(:\\/@)/]+");
         String fixieUser = fixieValues[1];
