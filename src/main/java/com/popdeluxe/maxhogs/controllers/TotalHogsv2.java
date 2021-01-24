@@ -119,6 +119,8 @@ public class TotalHogsv2 {
             System.out.println("about to call royale api");
 
             CloseableHttpResponse response = httpclient.execute(target, httpget);
+
+            System.out.println("after api call");
             try {
                 System.out.println(EntityUtils.toString(response.getEntity()));
             } finally {
