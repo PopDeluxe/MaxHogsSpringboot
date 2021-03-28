@@ -24,6 +24,7 @@ public class Hog implements Comparable<Hog> {
     private int boatAttacks;
     private int donationScore;
     private int riverScore;
+    private int currentRiverAttacks;
     private int hogScore;
     private BigDecimal unroundedHogScore;
 
@@ -164,15 +165,37 @@ public class Hog implements Comparable<Hog> {
         this.unroundedHogScore = unroundedHogScore;
     }
 
+    public int getCurrentRiverAttacks() {
+        return currentRiverAttacks;
+    }
+
+    public void setCurrentRiverAttacks(int currentRiverAttacks) {
+        this.currentRiverAttacks = currentRiverAttacks;
+    }
 
     @Override
     public int compareTo(Hog o) {
 
+        /*
         if(this.getUnroundedHogScore() == null || o.getUnroundedHogScore() == null){
             return 0;
         }
         else {
             return o.getUnroundedHogScore().compareTo(this.getUnroundedHogScore());
         }
+        
+         */
+
+        if (o.getCurrentRiverAttacks() > this.getCurrentRiverAttacks()) {
+            return 1;
+        }
+        else if (o.getCurrentRiverAttacks() < this.getCurrentRiverAttacks()) {
+            return -1;
+        }
+        else {
+            return 0;
+        }
+
+
     }
 }
